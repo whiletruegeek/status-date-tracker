@@ -1,8 +1,9 @@
-# Project Status Dates
+# Status Date Tracker
 
-Project Status Dates records when a Markdown note enters each project status.
-It works with status changes made in note properties, Bases, Kanban views, and
-other plugins that update frontmatter through Obsidian.
+Status Date Tracker is a plugin for Obsidian that records when a Markdown note
+enters each project status. It works with status changes made in note
+properties, Bases, Kanban views, and other plugins that update frontmatter
+through Obsidian.
 
 ## How it works
 
@@ -30,15 +31,16 @@ status-date properties remain in the note as a compact transition history.
 
 ## Final statuses
 
-Some transitions should keep their first date permanently. By default,
-`published` and `rejected` are final statuses:
+Some transitions should keep their first date permanently. Add those statuses
+to the plugin settings:
 
 - The first transition adds the date if the property is absent.
 - Later transitions back into that status preserve the existing property.
 - Non-final status dates are updated whenever the note re-enters that status.
 
-Configure the comma-separated list under **Settings → Project Status Dates →
-Final statuses**.
+Configure the comma-separated list under **Settings → Status Date Tracker →
+Final statuses**. The list is empty by default, so every status date is
+overwritten until final statuses are configured.
 
 ## Installation
 
@@ -47,15 +49,15 @@ Final statuses**.
 After the plugin is accepted into the Obsidian Community directory:
 
 1. Open **Settings → Community plugins → Browse**.
-2. Search for **Project Status Dates**.
+2. Search for **Status Date Tracker**.
 3. Select **Install**, then **Enable**.
 
 ### Manual installation
 
 1. Download `main.js` and `manifest.json` from the latest GitHub release.
-2. Create `<vault>/.obsidian/plugins/project-status-dates/`.
+2. Create `<vault>/.obsidian/plugins/status-date-tracker/`.
 3. Copy both files into that folder.
-4. Reload Obsidian and enable **Project Status Dates** under Community plugins.
+4. Reload Obsidian and enable **Status Date Tracker** under Community plugins.
 
 ## Data and privacy
 

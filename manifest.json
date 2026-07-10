@@ -1,7 +1,7 @@
 {
-  "id": "project-status-dates",
-  "name": "Project Status Dates",
-  "version": "1.0.0",
+  "id": "status-date-tracker",
+  "name": "Status Date Tracker",
+  "version": "1.1.0",
   "minAppVersion": "1.10.0",
   "description": "Record dates when project notes move between status values.",
   "author": "WhileTrueGeek",

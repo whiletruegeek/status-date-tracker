@@ -13,7 +13,7 @@ interface StatusDatesSettings {
 }
 
 const DEFAULT_SETTINGS: StatusDatesSettings = {
-	finalStatuses: ["published", "rejected"],
+	finalStatuses: [],
 };
 
 function localDate(): string {
@@ -147,7 +147,7 @@ class StatusDatesSettingTab extends PluginSettingTab {
 		new Setting(this.containerEl)
 			.setName("Final statuses")
 			.setDesc(
-				"Comma-separated statuses whose first recorded date must never be overwritten.",
+				"Comma-separated statuses whose first recorded date must never be overwritten. Leave empty to overwrite every status date.",
 			)
 			.addText((text) =>
 				text
