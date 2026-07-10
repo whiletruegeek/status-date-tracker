@@ -188,6 +188,10 @@ class StatusDatesSettingTab extends PluginSettingTab {
 		super(app, statusDatesPlugin);
 	}
 
+	display(): void {
+		this.renderLegacySettings();
+	}
+
 	getSettingDefinitions(): SettingDefinitionItem[] {
 		return [
 			{
@@ -243,6 +247,65 @@ class StatusDatesSettingTab extends PluginSettingTab {
 		}
 
 		await this.statusDatesPlugin.saveSettings();
-		this.refreshDomState();
+		const declarativeTab = this as unknown as {
+			refreshDomState?: () => void;
+		};
+		declarativeTab.refreshDomState?.();
+	}
+
+	private renderLegacySettings(): void {
+		this.containerEl.empty();
+
+		new Setting(this.containerEl)
+			.setName("Tracked property")
+			.setDesc("Property whose value changes should be dated.")
+			.addText((text) =>
+				text
+					.setPlaceholder("Status")
+					.setValue(this.statusDatesPlugin.settings.trackedProperty)
+					.onChange(async (value) => {
+						this.statusDatesPlugin.settings.trackedProperty =
+							value.trim() || DEFAULT_SETTINGS.trackedProperty;
+						this.statusDatesPlugin.resetPendingChanges();
+						await this.statusDatesPlugin.saveSettings();
+					}),
+			);
+
+		new Setting(this.containerEl)
+			.setName("Preserve first date for every value")
+			.setDesc(
+				"When enabled, every tracked value keeps the date it was first recorded.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.statusDatesPlugin.settings.preserveAllDates)
+					.onChange(async (value) => {
+						this.statusDatesPlugin.settings.preserveAllDates = value;
+						await this.statusDatesPlugin.saveSettings();
+						this.renderLegacySettings();
+					}),
+			);
+
+		if (!this.statusDatesPlugin.settings.preserveAllDates) {
+			new Setting(this.containerEl)
+				.setName("Final statuses")
+				.setDesc(
+					"Comma-separated statuses whose first recorded date must never be overwritten. Leave empty to overwrite every status date.",
+				)
+				.addText((text) =>
+					text
+						.setPlaceholder("Published, rejected")
+						.setValue(
+							this.statusDatesPlugin.settings.finalStatuses.join(", "),
+						)
+						.onChange(async (value) => {
+							this.statusDatesPlugin.settings.finalStatuses = value
+								.split(",")
+								.map((status) => status.trim())
+								.filter(Boolean);
+							await this.statusDatesPlugin.saveSettings();
+						}),
+				);
+		}
 	}
 }

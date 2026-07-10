@@ -2,7 +2,7 @@
   "id": "status-date-tracker",
   "name": "Status Date Tracker",
   "version": "1.4.0",
-  "minAppVersion": "1.13.0",
+  "minAppVersion": "1.10.0",
   "description": "Add dates when a tracked property changes value.",
   "author": "WhileTrueGeek",
   "authorUrl": "https://github.com/WhileTrueGeek",

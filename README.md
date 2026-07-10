@@ -78,7 +78,7 @@ After the plugin is accepted into the Obsidian Community directory:
 
 ## Compatibility
 
-- Requires Obsidian 1.13.0 or later.
+- Requires Obsidian 1.10.0 or later.
 - Supports desktop and mobile.
 
 ## Development
