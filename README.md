@@ -1,9 +1,7 @@
 # Status Date Tracker
 
-Status Date Tracker is a plugin for Obsidian that records when a Markdown note
-enters each project status. It works with status changes made in note
-properties, Bases, Kanban views, and other plugins that update frontmatter
-through Obsidian.
+Status Date Tracker is a plugin for Obsidian that adds a date when the `status`
+property changes.
 
 ## How it works
 
@@ -28,6 +26,9 @@ in-progress: 2026-07-10
 
 Dates use the device's local calendar date in `YYYY-MM-DD` format. Existing
 status-date properties remain in the note as a compact transition history.
+
+The tracked property defaults to `status`. You can choose another property
+under **Settings → Status Date Tracker → Tracked property**.
 
 ## Final statuses
 

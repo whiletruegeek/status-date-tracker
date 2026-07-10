@@ -1,7 +1,7 @@
 {
   "name": "status-date-tracker",
-  "version": "1.1.0",
-  "description": "Record dates when project notes move between status values in Obsidian.",
+  "version": "1.2.0",
+  "description": "Add dates when a tracked property changes value in Obsidian.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
@@ -10,7 +10,7 @@
   "keywords": [
     "obsidian",
     "obsidian-plugin",
-    "project-management",
+    "properties",
     "status-history"
   ],
   "author": "WhileTrueGeek",

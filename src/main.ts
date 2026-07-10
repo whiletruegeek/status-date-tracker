@@ -9,10 +9,12 @@ import {
 } from "obsidian";
 
 interface StatusDatesSettings {
+	trackedProperty: string;
 	finalStatuses: string[];
 }
 
 const DEFAULT_SETTINGS: StatusDatesSettings = {
+	trackedProperty: "status",
 	finalStatuses: [],
 };
 
@@ -28,7 +30,7 @@ function normalizeStatus(value: unknown): string | null {
 
 export default class StatusDatesPlugin extends Plugin {
 	settings: StatusDatesSettings = DEFAULT_SETTINGS;
-	private statusByPath = new Map<string, string | null>();
+	private trackedValueByPath = new Map<string, string | null>();
 	private processing = new Set<string>();
 
 	async onload(): Promise<void> {
@@ -36,7 +38,7 @@ export default class StatusDatesPlugin extends Plugin {
 		this.addSettingTab(new StatusDatesSettingTab(this.app, this));
 
 		this.app.workspace.onLayoutReady(() => {
-			this.initializeStatusCache();
+			this.initializeTrackedValueCache();
 
 			this.registerEvent(
 				this.app.metadataCache.on(
@@ -59,6 +61,10 @@ export default class StatusDatesPlugin extends Plugin {
 
 	private async loadSettings(): Promise<void> {
 		const saved = (await this.loadData()) as Partial<StatusDatesSettings> | null;
+		const trackedProperty =
+			typeof saved?.trackedProperty === "string" && saved.trackedProperty.trim()
+				? saved.trackedProperty.trim()
+				: DEFAULT_SETTINGS.trackedProperty;
 		const finalStatuses = Array.isArray(saved?.finalStatuses)
 			? saved.finalStatuses.filter(
 					(status): status is string =>
@@ -66,20 +72,22 @@ export default class StatusDatesPlugin extends Plugin {
 				)
 			: DEFAULT_SETTINGS.finalStatuses;
 
-		this.settings = { finalStatuses };
+		this.settings = { trackedProperty, finalStatuses };
 	}
 
 	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
 
-	private initializeStatusCache(): void {
-		this.statusByPath.clear();
+	initializeTrackedValueCache(): void {
+		this.trackedValueByPath.clear();
 		for (const file of this.app.vault.getMarkdownFiles()) {
 			const cache = this.app.metadataCache.getFileCache(file);
-			this.statusByPath.set(
+			this.trackedValueByPath.set(
 				file.path,
-				normalizeStatus(cache?.frontmatter?.status),
+				normalizeStatus(
+					cache?.frontmatter?.[this.settings.trackedProperty],
+				),
 			);
 		}
 	}
@@ -91,15 +99,17 @@ export default class StatusDatesPlugin extends Plugin {
 		if (file.extension !== "md") return;
 
 		const path = file.path;
-		const newStatus = normalizeStatus(cache.frontmatter?.status);
+		const newStatus = normalizeStatus(
+			cache.frontmatter?.[this.settings.trackedProperty],
+		);
 
 		if (this.processing.has(path)) {
-			this.statusByPath.set(path, newStatus);
+			this.trackedValueByPath.set(path, newStatus);
 			return;
 		}
 
-		const oldStatus = this.statusByPath.get(path) ?? null;
-		this.statusByPath.set(path, newStatus);
+		const oldStatus = this.trackedValueByPath.get(path) ?? null;
+		this.trackedValueByPath.set(path, newStatus);
 
 		if (!newStatus || oldStatus === newStatus) return;
 
@@ -124,14 +134,14 @@ export default class StatusDatesPlugin extends Plugin {
 	private handleRename(file: TAbstractFile, oldPath: string): void {
 		if (!(file instanceof TFile) || file.extension !== "md") return;
 
-		const status = this.statusByPath.get(oldPath);
-		this.statusByPath.delete(oldPath);
-		if (status !== undefined) this.statusByPath.set(file.path, status);
+		const status = this.trackedValueByPath.get(oldPath);
+		this.trackedValueByPath.delete(oldPath);
+		if (status !== undefined) this.trackedValueByPath.set(file.path, status);
 	}
 
 	private handleDelete(file: TAbstractFile): void {
 		if (!(file instanceof TFile)) return;
-		this.statusByPath.delete(file.path);
+		this.trackedValueByPath.delete(file.path);
 		this.processing.delete(file.path);
 	}
 }
@@ -143,6 +153,21 @@ class StatusDatesSettingTab extends PluginSettingTab {
 
 	display(): void {
 		this.containerEl.empty();
+
+		new Setting(this.containerEl)
+			.setName("Tracked property")
+			.setDesc("Property whose value changes should be dated.")
+			.addText((text) =>
+				text
+					.setPlaceholder("status")
+					.setValue(this.statusDatesPlugin.settings.trackedProperty)
+					.onChange(async (value) => {
+						this.statusDatesPlugin.settings.trackedProperty =
+							value.trim() || DEFAULT_SETTINGS.trackedProperty;
+						this.statusDatesPlugin.initializeTrackedValueCache();
+						await this.statusDatesPlugin.saveSettings();
+					}),
+			);
 
 		new Setting(this.containerEl)
 			.setName("Final statuses")
