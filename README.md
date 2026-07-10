@@ -24,8 +24,11 @@ status: in-progress
 in-progress: 2026-07-10
 ```
 
-Dates use the device's local calendar date in `YYYY-MM-DD` format. Existing
-status-date properties remain in the note as a compact transition history.
+Dates use the device's local calendar date in the fixed `YYYY-MM-DD` format.
+This format does not follow Daily Notes, Templates, locale, or other Obsidian
+date-format settings. The ISO format keeps values unambiguous, sortable, and
+compatible with Obsidian date properties. Existing status-date properties
+remain in the note as a compact transition history.
 
 The tracked property defaults to `status`. You can choose another property
 under **Settings → Status Date Tracker → Tracked property**.
