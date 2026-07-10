@@ -10,11 +10,13 @@ import {
 
 interface StatusDatesSettings {
 	trackedProperty: string;
+	preserveAllDates: boolean;
 	finalStatuses: string[];
 }
 
 const DEFAULT_SETTINGS: StatusDatesSettings = {
 	trackedProperty: "status",
+	preserveAllDates: false,
 	finalStatuses: [],
 };
 
@@ -65,6 +67,10 @@ export default class StatusDatesPlugin extends Plugin {
 			typeof saved?.trackedProperty === "string" && saved.trackedProperty.trim()
 				? saved.trackedProperty.trim()
 				: DEFAULT_SETTINGS.trackedProperty;
+		const preserveAllDates =
+			typeof saved?.preserveAllDates === "boolean"
+				? saved.preserveAllDates
+				: DEFAULT_SETTINGS.preserveAllDates;
 		const finalStatuses = Array.isArray(saved?.finalStatuses)
 			? saved.finalStatuses.filter(
 					(status): status is string =>
@@ -72,7 +78,7 @@ export default class StatusDatesPlugin extends Plugin {
 				)
 			: DEFAULT_SETTINGS.finalStatuses;
 
-		this.settings = { trackedProperty, finalStatuses };
+		this.settings = { trackedProperty, preserveAllDates, finalStatuses };
 	}
 
 	async saveSettings(): Promise<void> {
@@ -120,7 +126,9 @@ export default class StatusDatesPlugin extends Plugin {
 					frontmatter,
 					newStatus,
 				);
-				const isFinal = this.settings.finalStatuses.includes(newStatus);
+				const isFinal =
+					this.settings.preserveAllDates ||
+					this.settings.finalStatuses.includes(newStatus);
 
 				if (!isFinal || !propertyExists) {
 					frontmatter[newStatus] = localDate();
@@ -170,21 +178,40 @@ class StatusDatesSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(this.containerEl)
-			.setName("Final statuses")
+			.setName("Preserve first date for every value")
 			.setDesc(
-				"Comma-separated statuses whose first recorded date must never be overwritten. Leave empty to overwrite every status date.",
+				"When enabled, every tracked value keeps the date it was first recorded.",
 			)
-			.addText((text) =>
-				text
-					.setPlaceholder("published, rejected")
-					.setValue(this.statusDatesPlugin.settings.finalStatuses.join(", "))
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.statusDatesPlugin.settings.preserveAllDates)
 					.onChange(async (value) => {
-						this.statusDatesPlugin.settings.finalStatuses = value
-							.split(",")
-							.map((status) => status.trim())
-							.filter(Boolean);
+						this.statusDatesPlugin.settings.preserveAllDates = value;
 						await this.statusDatesPlugin.saveSettings();
+						this.display();
 					}),
 			);
+
+		if (!this.statusDatesPlugin.settings.preserveAllDates) {
+			new Setting(this.containerEl)
+				.setName("Final statuses")
+				.setDesc(
+					"Comma-separated statuses whose first recorded date must never be overwritten. Leave empty to overwrite every status date.",
+				)
+				.addText((text) =>
+					text
+						.setPlaceholder("published, rejected")
+						.setValue(
+							this.statusDatesPlugin.settings.finalStatuses.join(", "),
+						)
+						.onChange(async (value) => {
+							this.statusDatesPlugin.settings.finalStatuses = value
+								.split(",")
+								.map((status) => status.trim())
+								.filter(Boolean);
+							await this.statusDatesPlugin.saveSettings();
+						}),
+				);
+		}
 	}
 }

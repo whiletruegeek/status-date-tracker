@@ -43,6 +43,10 @@ Configure the comma-separated list under **Settings → Status Date Tracker →
 Final statuses**. The list is empty by default, so every status date is
 overwritten until final statuses are configured.
 
+Alternatively, enable **Preserve first date for every value** to keep the first
+date for every tracked value. When enabled, the separate **Final statuses**
+field is hidden because it is no longer needed.
+
 ## Installation
 
 ### Community Plugins
