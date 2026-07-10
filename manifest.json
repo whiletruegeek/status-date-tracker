@@ -1,0 +1,10 @@
+{
+  "id": "project-status-dates",
+  "name": "Project Status Dates",
+  "version": "1.0.0",
+  "minAppVersion": "1.10.0",
+  "description": "Record dates when project notes move between status values.",
+  "author": "WhileTrueGeek",
+  "authorUrl": "https://github.com/WhileTrueGeek",
+  "isDesktopOnly": false
+}
